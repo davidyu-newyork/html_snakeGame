@@ -1,0 +1,289 @@
+<html>
+<style>
+    canvas {
+        border : solid 1px black
+
+}
+</style>
+<head>
+    <h1>Snake Game- David Yu</h1>
+
+
+</head>
+
+
+<body>
+    <canvas id="canvas" width="1800" height="1050" ></canvas>
+    
+
+</body>
+
+<script>
+
+    //function to shuffle array
+
+    function shuffle(arr){
+        var index = arr.length;
+
+        while(index !=0){
+            index = index - 1;
+            temp = Math.floor (Math.random() * index);
+
+            x = arr[index];
+            arr[index] = arr[temp];
+            arr[temp] = x
+        }
+
+    }
+
+
+    ctx = canvas.getContext('2d');
+
+
+    this.curPos = [900, 500];
+    var body = []
+    body.unshift([curPos[0],curPos[1]]);
+    ctx.font = "20px Arial";
+
+    ctx.fillStyle = "pink";
+        var width = 50;
+        var height = 50;
+    var dir = "up"
+    var get_point = [-1,-1];
+    var snake_len = 1;
+    
+    var classes = [101,114,160,161,214,215,216,220,300,303,306,307,310,311,312,316,320,327,334,337,351,352,354,371,373,376,380,385,416,506,512,526,527,532,540,541,544,545,548,550,555,564,566,600,645];
+    var s_classes = classes.slice();
+    shuffle(s_classes);
+    console.log(s_classes.length);
+    console.log(s_classes);
+    console.log(classes);
+
+    flag = true;
+    right_flag = false;
+    up_flag = false;
+    left_flag = false;
+    down_flag = false;
+
+    ctx.fillRect(900, 500, width, height);
+
+    function checkIfOnSelf(e, i ,a){
+        if (curPos[0]== e[0] && curPos[1] == e[1] ){
+            console.log(curPos[0]);
+            console.log(curPos[1]);
+            console.log(e[0]);
+            console.log(e[1]);
+            console.log(a[0]);
+            console.log(a[1]);
+
+
+            return true;
+
+        }
+        else
+            return false;
+    }
+    document.addEventListener('keydown', function(event){
+        if(!flag){
+            return null;
+        }
+        let keypressed = null;
+        if(event != null){
+            keypressed = event.keyCode; }
+        else{
+            keypressed = event.charCode;
+            }
+
+
+        switch(keypressed){
+            case 37: //key left
+            if(dir != "r"){
+                if(right_flag){
+                    break;
+                }
+          //  curPos[0] = curPos[0] - width;
+            left_flag = true;
+            dir = "l"
+            }
+            break;
+            case 38: //key up
+            if(dir != "d"){
+                if(down_flag){
+                    break;
+                }
+              //  curPos[1] = curPos[1] - width;
+                up_flag = true;
+                dir = "up"
+              //  snake();
+            }
+            
+                break;
+            case 39: //key right
+            if(dir != "l"){
+                if(left_flag){
+                    break;
+                }
+              //  curPos[0] = curPos[0] + width;
+              right_flag = true;
+                dir = "r"
+              //  snake();
+
+            }
+                break;
+            case 40: //key down
+            if(dir != "up"){
+                if(up_flag){
+                    break;
+                }
+              //  curPos[1] = curPos[1] + width;
+                down_flag = true;
+                dir = "d"
+             //   snake();
+
+                }
+                break;
+            default:
+                break;
+
+        }
+    
+    },false);
+
+    function snake(){ //draw the snake
+        if(body.some(checkIfOnSelf)){
+            console.log("-----------------");
+            lost();
+            return;
+        }
+        if(curPos[0] < 0 || curPos[0] >= 1800  || curPos[1] < 0 || curPos[1] >= 1050){
+            console.log(curPos[0]);
+            console.log(curPos[1]);
+
+            lost();
+            return;
+        }
+        ctx.fillStyle = "red";
+        body.unshift([curPos[0],curPos[1]]);
+        if(snake_len < body.length){
+            var temp = body.pop();
+            ctx.clearRect(temp[0],temp[1],width,width);
+        }
+        ctx.fillStyle = "pink";
+
+        ctx.fillRect(curPos[0],curPos[1],width,width)
+        ctx.fillStyle = "red";
+        if(body.length>1){
+        switch(dir){
+            case "l":
+                ctx.fillRect(curPos[0]+50,curPos[1],width,width)
+                break;
+            case "r":
+                ctx.fillRect(curPos[0]-50,curPos[1],width,width)
+
+                break;
+            case "up":
+                ctx.fillRect(curPos[0],curPos[1]+50,width,width)
+
+                break;
+            case "d":
+                ctx.fillRect(curPos[0],curPos[1]-50,width,width)
+
+                break;
+            default:
+                break;
+        }
+    }  
+        if(curPos[0] == get_point[0] &&curPos[1] == get_point[1]){
+            food();
+            snake_len = snake_len + 1;
+        }
+
+    }
+    function inBody(e,i,a){
+        if(e[0] == get_point[0] && e[1] == get_point[1]){  
+            return true;}
+        else{
+            return false;
+
+        }
+
+    }
+    function food(){
+        get_point = [Math.floor(Math.random() * 36 )* 50,Math.floor(Math.random() * 21 )* 50 ]
+        while(body.some(inBody)){
+            get_point = [Math.floor(Math.random() * 36) * 50,Math.floor(Math.random() * 21) * 50 ]
+        }
+        if (s_classes.length == 0){
+            won();
+            return;
+        }
+        
+        random_class = s_classes.pop();
+        ctx.fillStyle = "cyan";
+        ctx.fillRect(get_point[0], get_point[1],50,50)
+        ctx.fillStyle = "black";
+        ctx.fillText(random_class,get_point[0]+4, get_point[1]+18)
+    }
+    function change_pos(){
+        if(dir == "l"){
+            curPos[0] = curPos[0] - 50;
+            snake();
+            right_flag = false;
+            up_flag = false;
+            down_flag = false;
+            return;
+        }
+        else if(dir == "r"){
+            curPos[0] = curPos[0] + 50;
+            snake();
+        up_flag = false;
+        left_flag = false;
+        down_flag = false;
+            return;
+
+        }
+        else if(dir == "up"){
+            curPos[1] = curPos[1] - 50;
+            snake();
+            right_flag = false;
+        left_flag = false;
+        down_flag = false;
+            return;
+
+        }
+        else if(dir == "d"){
+            curPos[1] = curPos[1] + 50;
+            snake();
+            right_flag = false;
+        up_flag = false;
+        left_flag = false;
+            return;
+
+        }
+    }
+    function lost(){
+        flag = false;
+        alert("game over");
+        clearInterval(interval);
+
+
+    }
+    function won(){
+        flag = false;
+        alert("game won");
+        clearInterval(interval);
+
+    }
+
+    var interval = setInterval(change_pos,100); //move every .1 seconds
+    food();
+
+
+    
+</script>
+
+
+
+
+
+</html>
